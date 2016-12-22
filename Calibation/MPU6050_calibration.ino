@@ -40,7 +40,7 @@
 //Change this 3 variables if you want to fine tune the skecth to your needs.
 int buffersize=1000;     //Amount of readings used to average, make it higher to get more precision but sketch will be slower  (default:1000)
 int acel_deadzone=8;     //Acelerometer error allowed, make it lower to get more precision, but sketch may not converge  (default:8)
-int gyro_deadzone=1;     //gyro error allowed, make it lower to get more precision, but sketch may not converge  (default:1)
+int giro_deadzone=1;     //Giro error allowed, make it lower to get more precision, but sketch may not converge  (default:1)
 
 // default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
@@ -135,7 +135,7 @@ void loop() {
     Serial.print(gy_offset); 
     Serial.print("\t");
     Serial.println(gz_offset); 
-    Serial.println("\nData is printed as: acelX acelY acelZ gyroX gyroY gyroZ");
+    Serial.println("\nData is printed as: acelX acelY acelZ giroX giroY giroZ");
     Serial.println("Check that your sensor readings are close to 0 0 16384 0 0 0");
     Serial.println("If calibration was succesful write down your offsets so you can set them in your projects using something similar to mpu.setXAccelOffset(youroffset)");
     while (1);
@@ -201,14 +201,14 @@ void calibration(){
     if (abs(16384-mean_az)<=acel_deadzone) ready++;
     else az_offset=az_offset+(16384-mean_az)/acel_deadzone;
 
-    if (abs(mean_gx)<=gyro_deadzone) ready++;
-    else gx_offset=gx_offset-mean_gx/(gyro_deadzone+1);
+    if (abs(mean_gx)<=giro_deadzone) ready++;
+    else gx_offset=gx_offset-mean_gx/(giro_deadzone+1);
 
-    if (abs(mean_gy)<=gyro_deadzone) ready++;
-    else gy_offset=gy_offset-mean_gy/(gyro_deadzone+1);
+    if (abs(mean_gy)<=giro_deadzone) ready++;
+    else gy_offset=gy_offset-mean_gy/(giro_deadzone+1);
 
-    if (abs(mean_gz)<=gyro_deadzone) ready++;
-    else gz_offset=gz_offset-mean_gz/(gyro_deadzone+1);
+    if (abs(mean_gz)<=giro_deadzone) ready++;
+    else gz_offset=gz_offset-mean_gz/(giro_deadzone+1);
 
     if (ready==6) break;
   }
