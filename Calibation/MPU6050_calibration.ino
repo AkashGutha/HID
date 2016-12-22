@@ -179,6 +179,7 @@ void calibration(){
   gx_offset=-mean_gx/4;
   gy_offset=-mean_gy/4;
   gz_offset=-mean_gz/4;
+  
   while (1){
     int ready=0;
     accelgyro.setXAccelOffset(ax_offset);
