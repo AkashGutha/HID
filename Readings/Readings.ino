@@ -1,46 +1,66 @@
-#include<Wire.h>
+
+// I2Cdev and MPU6050 must be installed as libraries
+#include "I2Cdev.h"
+#include "MPU6050.h"
+#include "Wire.h"
 
 const int MPU_addr = 0x68; // I2C address of the MPU-6050
-int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
-int16_t prev_accx=0,prev_accy=0,prev_accz=0;
+int16_t ax, ay, az, gx, gy, gz;
+int16_t prev_accx = 0, prev_accy = 0, prev_accz = 0;
+
+
+MPU6050 accelgyro(0x68); // <-- use for AD0 high
 
 void setup() {
   Wire.begin();
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x6B);  // PWR_MGMT_1 register
-  Wire.write(0);     // set to zero (wakes up the MPU-6050)
-  Wire.endTransmission(true);
+
+  
+  // initialize serial communication
   Serial.begin(9600);
+
+  Serial.print("this is start");
+  
+  // initialize device
+  accelgyro.initialize();
+
+  // set offsets
+  accelgyro.setXAccelOffset(1220);
+  accelgyro.setYAccelOffset(-2250);
+  accelgyro.setZAccelOffset(2017);
+  accelgyro.setXGyroOffset(57);
+  accelgyro.setYGyroOffset(16);
+  accelgyro.setZGyroOffset(4);
+
+  delay(2000);
 }
+
 void loop() {
-  int16_t num =  999999;
-  
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-  Wire.endTransmission(false);
-  Wire.requestFrom(MPU_addr, 14, true); // request a total of 14 registers
-  AcX = Wire.read() << 8 | Wire.read(); // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
-  AcY = Wire.read() << 8 | Wire.read(); // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-  AcZ = Wire.read() << 8 | Wire.read(); // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-  Tmp = Wire.read() << 8 | Wire.read(); // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-  GyX = Wire.read() << 8 | Wire.read(); // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-  GyY = Wire.read() << 8 | Wire.read(); // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-  GyZ = Wire.read() << 8 | Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-  if(num > 0){
-    Serial.print(AcX-prev_accx);Serial.print(",");
-    Serial.print(AcY+2064/32);Serial.print(",");
-    Serial.print(AcZ-16384/32);Serial.print(",");
-    //Serial.print(" | Tmp = "); Serial.print(Tmp / 340.00 + 36.53); //equation for temperature in degrees C from datasheet
-    Serial.print(GyX-57);Serial.print(",");
-    Serial.print(GyY-16);Serial.print(",");
-    Serial.println(GyZ-3);
-     num--;
-  }
 
-  prev_accx = AcX;
-  prev_accy = AcY;
-  prev_accz = AcZ;
-  
+  // read raw accel/gyro measurements from device
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+  // decrease the range
+  az -= 16834;
+  ax /= 32;
+  ay /= 32;
+  az /= 32;
+
+  Serial.print("\nSensor readings with offsets:\t");
+  Serial.print((prev_accx+3*ax)/4);
+  Serial.print("\t");
+  Serial.print((prev_accy+3*ay)/4);
+  Serial.print("\t");
+  Serial.print((prev_accz+3*az)/4);
+  Serial.print("\t");
+  Serial.print(gx);
+  Serial.print("\t");
+  Serial.print(gy);
+  Serial.print("\t");
+  Serial.println(gz);
+
+  prev_accx = ax;
+  prev_accy = ay;
+  prev_accz = az;
+
   delay(50);
-
 }

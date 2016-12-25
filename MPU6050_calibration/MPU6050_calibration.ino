@@ -182,6 +182,32 @@ void calibration(){
 
   while (1){
     int ready=0;
+    
+    Serial.print("\nSensor readings with offsets:\t");
+    Serial.print(mean_ax); 
+    Serial.print("\t");
+    Serial.print(mean_ay); 
+    Serial.print("\t");
+    Serial.print(mean_az); 
+    Serial.print("\t");
+    Serial.print(mean_gx); 
+    Serial.print("\t");
+    Serial.print(mean_gy); 
+    Serial.print("\t");
+    Serial.println(mean_gz);
+    Serial.print("Your offsets:\t");
+    Serial.print(ax_offset); 
+    Serial.print("\t");
+    Serial.print(ay_offset); 
+    Serial.print("\t");
+    Serial.print(az_offset); 
+    Serial.print("\t");
+    Serial.print(gx_offset); 
+    Serial.print("\t");
+    Serial.print(gy_offset); 
+    Serial.print("\t");
+    Serial.println(gz_offset); 
+
     accelgyro.setXAccelOffset(ax_offset);
     accelgyro.setYAccelOffset(ay_offset);
     accelgyro.setZAccelOffset(az_offset);
