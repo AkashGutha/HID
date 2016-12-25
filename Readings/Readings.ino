@@ -2,6 +2,7 @@
 
 const int MPU_addr = 0x68; // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+int16_t prev_accx=0,prev_accy=0,prev_accz=0;
 
 void setup() {
   Wire.begin();
@@ -26,14 +27,20 @@ void loop() {
   GyY = Wire.read() << 8 | Wire.read(); // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ = Wire.read() << 8 | Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
   if(num > 0){
-    Serial.print(AcX);Serial.print(",");
-    Serial.print(AcY);Serial.print(",");
-    Serial.print(AcZ);Serial.print(",");
+    Serial.print(AcX-prev_accx);Serial.print(",");
+    Serial.print(AcY+2064/32);Serial.print(",");
+    Serial.print(AcZ-16384/32);Serial.print(",");
     //Serial.print(" | Tmp = "); Serial.print(Tmp / 340.00 + 36.53); //equation for temperature in degrees C from datasheet
-    Serial.print(GyX);Serial.print(",");
-    Serial.print(GyY);Serial.print(",");
-    Serial.println(GyZ);
+    Serial.print(GyX-57);Serial.print(",");
+    Serial.print(GyY-16);Serial.print(",");
+    Serial.println(GyZ-3);
      num--;
   }
-  delay(10);
+
+  prev_accx = AcX;
+  prev_accy = AcY;
+  prev_accz = AcZ;
+  
+  delay(50);
+
 }
